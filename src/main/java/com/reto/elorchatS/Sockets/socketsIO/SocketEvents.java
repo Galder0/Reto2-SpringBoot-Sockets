@@ -1,4 +1,4 @@
-package com.reto.elorchatS.socketsIO;
+package com.reto.elorchatS.Sockets.socketsIO;
 
 public enum SocketEvents {
 	

@@ -11,4 +11,10 @@ public interface ChatService {
 
 	Optional<Chat> findChatById(Integer chatId);
 
+	Chat createChat(Chat newChat);
+
+	Chat updateChat(Integer chatId, Chat updatedChat);
+
+	void deleteChat(Integer chatId);
+
 }

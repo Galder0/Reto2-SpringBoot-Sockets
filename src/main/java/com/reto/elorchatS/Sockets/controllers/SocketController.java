@@ -1,4 +1,4 @@
-package com.reto.elorchatS.controllers;
+package com.reto.elorchatS.Sockets.controllers;
 
 import java.util.Collection;
 
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.reto.elorchatS.model.MessageFromServer;
-import com.reto.elorchatS.model.MessageType;
-import com.reto.elorchatS.socketsIO.SocketEvents;
-import com.reto.elorchatS.socketsIO.SocketIOConfig;
+import com.reto.elorchatS.Sockets.model.MessageFromServer;
+import com.reto.elorchatS.Sockets.model.MessageType;
+import com.reto.elorchatS.Sockets.socketsIO.SocketEvents;
+import com.reto.elorchatS.Sockets.socketsIO.SocketIOConfig;
 
 @RestController
 @RequestMapping("/api/sockets")

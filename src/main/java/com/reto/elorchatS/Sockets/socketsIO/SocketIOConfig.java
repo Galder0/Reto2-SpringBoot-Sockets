@@ -1,6 +1,8 @@
-package com.reto.elorchatS.socketsIO;
+package com.reto.elorchatS.Sockets.socketsIO;
 
 
+
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,10 +14,12 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.reto.elorchatS.model.MessageFromClient;
-import com.reto.elorchatS.model.MessageFromServer;
-import com.reto.elorchatS.model.MessageType;
+import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
+import com.reto.elorchatS.Sockets.model.MessageFromClient;
+import com.reto.elorchatS.Sockets.model.MessageFromServer;
+import com.reto.elorchatS.Sockets.model.MessageType;
 import com.reto.elorchatS.users.Service.UserService;
+import com.reto.elorchatS.users.model.User;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
@@ -63,28 +67,25 @@ public class SocketIOConfig {
         @Autowired
         UserService userService;
         
+//        @Autowired
+//    	private JwtTokenUtil jwtUtil;
+
+        
     	MyConnectListener(SocketIOServer server) {
     		this.server = server;
     	}
     	
     	 @Override
-         public void onConnect(SocketIOClient client) {
-         	// ojo por que este codigo no esta bien en si
-         	
-         	// TODO el que no tenga autorization no deberia ni poder conectarse. gestionar
-         	HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
-         	if (headers.get(AUTHORIZATION_HEADER) == null) {
-         		// FUERA
-         		System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());
-         		client.disconnect();
-         	} else {
-         		loadClientData(headers, client);
-         		System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), this.server.getAllClients().size());
-         		
-         		// aqui incluso se podria notificar a todos o a salas de que se ha conectado...
-             	// server.getBroadcastOperations().sendEvent("chat message", messageFromServer);
-         	}
-         }
+    	    public void onConnect(SocketIOClient client) {
+    	        HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
+    	        if (headers.get(AUTHORIZATION_HEADER) == null) {
+    	            System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());
+    	            client.disconnect();
+    	        } else {
+    	            loadClientData(headers, client);
+    	            System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), this.server.getAllClients().size());
+    	        }
+    	    }
 
 
 		private void loadClientData(HttpHeaders headers, SocketIOClient client) {
@@ -92,6 +93,12 @@ public class SocketIOConfig {
 			try {
 				String authorization = headers.get(AUTHORIZATION_HEADER);
 				String jwt = authorization.split(" ")[1];
+				
+//				Integer id = jwtUtil.getUserId(AUTHORIZATION_HEADER);
+//				
+//				Optional<User> user = userService.findUserById(id);
+//				
+//				System.out.println(user.toString());
 				
 	    		// TODO HAY QUE VALIDAR Y CARGAR ESTOS DATOS DEL JWT! y si no no dejar conectarle o desconectarle
 				// si esta autenticado y puede, meterle en sus salas correspondientes...
@@ -103,6 +110,7 @@ public class SocketIOConfig {
 				String[] datos = jwt.split(":");
 				String authorId = datos[1];
 				String authorName = datos[2];
+				
 
 				client.set(CLIENT_USER_ID_PARAM, authorId);
 				client.set(CLIENT_USER_NAME_PARAM, authorName);
@@ -110,9 +118,9 @@ public class SocketIOConfig {
 				// TODO ejemplo de salas
 				// ojo por que "Room1" no es la misma sala que "room1"
 				
-				
 				client.joinRoom("default-room");
 				client.joinRoom("Room1");
+				client.joinRoom("Prueba");
 				
 			} catch (Exception e) {
 				e.printStackTrace();

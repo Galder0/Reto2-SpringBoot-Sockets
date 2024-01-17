@@ -1,4 +1,4 @@
-package com.reto.elorchatS.model;
+package com.reto.elorchatS.Sockets.model;
 
 public class MessageFromServer {
 

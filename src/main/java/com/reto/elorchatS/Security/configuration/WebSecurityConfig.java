@@ -67,10 +67,11 @@ public class WebSecurityConfig {
 				// employees
 				// permitimos el get a cualquiera
 				//.requestMatchers("/api/employees/{id}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}", "http://localhost:8080/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}").permitAll()
 				
 				// para todo lo demas habra que estar autenticado
 				.anyRequest().authenticated()
+				
 			)
 			// el siguiente bloque de codigo ajusta los codigos de error, para devolver 401 en caso de que tenga que estar autenticado
 			.exceptionHandling((exceptionHandling) ->

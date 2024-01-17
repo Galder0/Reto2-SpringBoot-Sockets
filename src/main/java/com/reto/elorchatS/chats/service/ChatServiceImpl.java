@@ -49,4 +49,9 @@ public class ChatServiceImpl implements ChatService{
         chatRepository.deleteById(chatId);
     }
 
+    @Override
+    public List<Chat> findChatsByUserId(Integer userId) {
+        // Implement the logic to fetch chats based on user ID
+        return chatRepository.findChatsByUserId(userId);
+    }
 }

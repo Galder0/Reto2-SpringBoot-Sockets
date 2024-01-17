@@ -11,4 +11,8 @@ public interface UserService {
 
 	List<User> findAllUsers();
 
+	Integer createUser(User newUser);
+	
+	
+
 }

@@ -90,6 +90,19 @@ public class User implements UserDetails {
 		this.password = password;
 		this.chats = chats;
 	}
+	
+	public User(String name, String surnames, String dNI, String email, String direction,
+			String phone_number, Boolean fct_dual, String password) {
+		super();
+		this.name = name;
+		this.surnames = surnames;
+		this.DNI = dNI;
+		this.email = email;
+		this.direction = direction;
+		this.phone_number = phone_number;
+		this.fct_dual = fct_dual;
+		this.password = password;
+	}
 
 
 	public Integer getId() {

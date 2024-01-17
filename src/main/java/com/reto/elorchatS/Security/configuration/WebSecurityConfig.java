@@ -62,7 +62,7 @@ public class WebSecurityConfig {
 				
 				// vamos a permitir registro y login para todos. Al no especificar metodo
 				// podran hacer todos los metodos a dichas urls...
-				.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/signup").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
 				
 				// employees
 				// permitimos el get a cualquiera

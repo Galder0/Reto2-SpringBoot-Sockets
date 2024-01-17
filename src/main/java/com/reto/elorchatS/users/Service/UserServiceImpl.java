@@ -39,5 +39,12 @@ public class UserServiceImpl implements UserService, UserDetailsService{
                 .orElseThrow(
                         () -> new UsernameNotFoundException("User " + username + " not found"));
 	}
+	
+	@Override
+    public Integer createUser(User newUser) {
+        // You might want to add some validation or business logic here
+        User createdUser = userRepository.save(newUser);
+        return createdUser.getId();
+    }
 
 }

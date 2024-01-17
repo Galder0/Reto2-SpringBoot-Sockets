@@ -14,6 +14,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.reto.elorchatS.Messages.Service.MessageService;
 import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
 import com.reto.elorchatS.Sockets.model.MessageFromClient;
 import com.reto.elorchatS.Sockets.model.MessageFromServer;
@@ -66,6 +67,9 @@ public class SocketIOConfig {
         
         @Autowired
         UserService userService;
+        
+        @Autowired
+        MessageService messageService;
         
 //        @Autowired
 //    	private JwtTokenUtil jwtUtil;
@@ -176,7 +180,7 @@ public class SocketIOConfig {
             		authorName, 
             		authorId
             	);
-            	
+            
             	// enviamos a la room correspondiente:
             	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
             	// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room

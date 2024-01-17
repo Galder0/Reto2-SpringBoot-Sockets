@@ -16,5 +16,7 @@ public interface ChatService {
 	Chat updateChat(Integer chatId, Chat updatedChat);
 
 	void deleteChat(Integer chatId);
-
+	
+	List<Chat> findChatsByUserId(Integer userId);
+	
 }

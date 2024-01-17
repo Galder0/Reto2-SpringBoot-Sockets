@@ -66,19 +66,19 @@ public class AuthController {
 	}
 
 	
-//	@PostMapping("/auth/signup")
-//	public ResponseEntity<?> signIn(@RequestBody @Valid AuthRequest request) {
-//		// TODO solo esta creado en el caso de que funcione. Si no es posible que de 500 o 401.
-//		// aqui hacer lo que sea preciso
-//
-//		// vamos a cifrar la contrasenia aqui, ya que no queremos andar dando vueltas con la contraseña sin encriptar si no es preciso
-//		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//		String password = passwordEncoder.encode(request.getPassword());
-//		
-//		// creamos el usuario en DB
-//		UserServiceResponse user = new UserServiceResponse(request.getName(), request.getSurname(), request.getEmail(), password);
-//		return new ResponseEntity<Integer>(userService.createUser(user), HttpStatus.CREATED);
-//	}
+	@PostMapping("/auth/register")
+	public ResponseEntity<?> register(@RequestBody @Valid AuthRequest request) {
+		// TODO solo esta creado en el caso de que funcione. Si no es posible que de 500 o 401.
+		// aqui hacer lo que sea preciso
+
+		// vamos a cifrar la contrasenia aqui, ya que no queremos andar dando vueltas con la contraseña sin encriptar si no es preciso
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		String password = passwordEncoder.encode(request.getPassword());
+		
+		// creamos el usuario en DB
+		User user = new User(request.getEmail(), password, request.getName(), request.getSurnames(), request.getDNI(), request.getDirection(), request.getFct_dual(), request.getPhone_number());
+		return new ResponseEntity<Integer>(userService.createUser(user), HttpStatus.CREATED);
+	}
 	
 	
 	// utilizamos el /me por que vamos a coger el nuestro, el que estamos logueado...

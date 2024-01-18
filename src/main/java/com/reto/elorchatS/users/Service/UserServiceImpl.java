@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.reto.elorchatS.roles.Service.RolesService;
+import com.reto.elorchatS.roles.model.Role;
 import com.reto.elorchatS.users.model.User;
 import com.reto.elorchatS.users.repository.UserRepository;
 
@@ -17,6 +19,9 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	RolesService rolesService;
 
 	@Override
 	public Optional<User> findUserById(Integer userId) {
@@ -46,5 +51,24 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         User createdUser = userRepository.save(newUser);
         return createdUser.getId();
     }
+
+	@Override
+	public List<Role> findRolesByUserId(Integer userId) {
+		// TODO Auto-generated method stub
+		return rolesService.findRolesByUserId(userId);
+	}
+
+	@Override
+	public Optional<User> findUserByEmail(String email) {
+		// TODO Auto-generated method stub
+		return userRepository.findByEmail(email);
+	}
+
+	@Override
+	public User updateUser(User existingUser) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 
 }

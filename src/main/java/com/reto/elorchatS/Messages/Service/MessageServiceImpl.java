@@ -1,14 +1,17 @@
 package com.reto.elorchatS.Messages.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.reto.elorchatS.Messages.Model.Message;
 import com.reto.elorchatS.Messages.Repository.MessageRepository;
 import com.reto.elorchatS.chats.service.ChatService;
 import com.reto.elorchatS.users.Service.UserService;
 
+@Service
 public class MessageServiceImpl implements MessageService{
 	
 	@Autowired
@@ -39,5 +42,17 @@ public class MessageServiceImpl implements MessageService{
 	    // Save the message
 	    return messageRepository.save(newMessage);
 	}
+
+
+	@Override
+	public List<Message> getAllMessages() {
+        return (List<Message>) messageRepository.findAll();
+    }
+	
+	@Override
+    public List<Message> findMessagesByChatId(Integer chatId) {
+        // Implement this method in your MessageRepository
+        return messageRepository.findMessagesByChatId(chatId);
+    }
 
 }

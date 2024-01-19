@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.reto.elorchatS.roles.Service.RolesService;
@@ -66,8 +67,41 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
 	@Override
 	public User updateUser(User existingUser) {
-		// TODO Auto-generated method stub
-		return null;
+	    try {
+	        // Update user in the database
+	        User updatedUser = userRepository.save(existingUser);
+	        return updatedUser;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        e.printStackTrace();
+	        return null;  // Return null in case of an error during the update
+	    }
+	}
+
+	@Override
+	public boolean changePassword(String email, String oldPassword, String newPassword) {
+	    Optional<User> existingUserOptional = userRepository.findByEmail(email);
+
+	    if (existingUserOptional.isPresent()) {
+	        User existingUser = existingUserOptional.get();
+
+	        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+	        // Check if the old password is correct
+	        if (passwordEncoder.matches(oldPassword, existingUser.getPassword())) {
+	            // Old password is correct, update the password
+	            String hashedNewPassword = passwordEncoder.encode(newPassword);
+	            existingUser.setPassword(hashedNewPassword);
+	            userRepository.save(existingUser);
+	            return true;
+	        } else {
+	            // Old password is incorrect
+	            return false;
+	        }
+	    } else {
+	        // User with the specified email not found
+	        return false;
+	    }
 	}
 	
 

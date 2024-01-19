@@ -7,7 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
 import com.reto.elorchatS.Security.model.AuthRequest;
 import com.reto.elorchatS.Security.model.AuthResponse;
+import com.reto.elorchatS.Security.model.ChangePasswordRequest;
 import com.reto.elorchatS.users.Service.UserService;
 import com.reto.elorchatS.users.model.User;
 
@@ -116,6 +117,33 @@ public class AuthController {
 //		}
 //			
 //	}
+	
+	@PostMapping("/auth/change-password")
+	public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordRequest request, Authentication authentication) {
+	    try {
+	    	UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+	        String oldPassword = request.getOldPassword();
+	        String newPassword = request.getNewPassword();
+
+	        // Log information for debugging
+	        System.out.println("Authentication Details: " + authentication);
+	        System.out.println("Email: " + email);
+	        System.out.println("Old Password: " + oldPassword);
+	        System.out.println("New Password: " + newPassword);
+
+	        boolean passwordChanged = userService.changePassword(email, oldPassword, newPassword);
+
+	        if (passwordChanged) {
+	            return ResponseEntity.ok().build();
+	        } else {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+	    } catch (Exception ex) {
+	        ex.printStackTrace();  // Log the exception
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
 	
 	
 }

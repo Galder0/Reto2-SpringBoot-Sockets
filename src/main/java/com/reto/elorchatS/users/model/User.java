@@ -26,8 +26,6 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class User implements UserDetails {
 
-	
-	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -249,7 +247,7 @@ public class User implements UserDetails {
 	@Override
 	public String getUsername() {
 		// esta funcion tiene que devolver el campo que hace de username. En este caso el email
-		return name;
+		return email;
 	}
 
 	@JsonIgnore

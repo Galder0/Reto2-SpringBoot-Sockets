@@ -11,6 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.repository.ChatRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ChatServiceImpl implements ChatService{
 	
@@ -54,4 +56,7 @@ public class ChatServiceImpl implements ChatService{
         // Implement the logic to fetch chats based on user ID
         return chatRepository.findChatsByUserId(userId);
     }
+    
+    
+    
 }

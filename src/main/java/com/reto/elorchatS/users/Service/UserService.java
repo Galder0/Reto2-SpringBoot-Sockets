@@ -20,6 +20,8 @@ public interface UserService {
 
 	Optional<User> findUserByEmail(String email);
 
+	boolean changePassword(String email, String oldPassword, String newPassword);
+
 	
 	
 

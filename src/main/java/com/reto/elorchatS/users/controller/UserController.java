@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,7 +46,7 @@ public class UserController {
     		() -> new ResponseStatusException(HttpStatus.NO_CONTENT)
     	);
     	System.out.println(user.toString());
-    	return new ResponseEntity(user, HttpStatus.ACCEPTED);
+    	return new ResponseEntity<User>(user, HttpStatus.ACCEPTED);
     }
     
     @PostMapping
@@ -91,18 +92,30 @@ public class UserController {
             existingUser.setDirection(updatedUser.getDirection());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             existingUser.setFctDual(updatedUser.getFctDual());
-            existingUser.setPassword(updatedUser.getPassword());
+
+            // Check if the password needs to be updated
+            if (!updatedUser.getPassword().equals(existingUser.getPassword())) {
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String hashedNewPassword = passwordEncoder.encode(updatedUser.getPassword());
+                existingUser.setPassword(hashedNewPassword);
+            }
 
             // Update user in the database
             User updated = userService.updateUser(existingUser);
 
-            // Return a success code, you can customize this based on your needs
-            return new ResponseEntity<>(1, HttpStatus.OK);
+            // Check if the update was successful
+            if (updated != null) {
+                return new ResponseEntity<>(1, HttpStatus.OK);
+            } else {
+                // Update failed for some reason
+                return new ResponseEntity<>(0, HttpStatus.CONFLICT);
+            }
         } else {
             // User with the specified ID was not found
             return new ResponseEntity<>(0, HttpStatus.NOT_FOUND);
         }
     }
+
     
     @GetMapping("/byEmail/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {

@@ -1,5 +1,6 @@
 package com.reto.elorchatS.Messages.Model;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import com.reto.elorchatS.chats.model.Chat;
@@ -12,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -33,11 +36,14 @@ public class Message {
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
     public Message() {
-    	
+
     }
 
     public Long getId() {
@@ -72,18 +78,36 @@ public class Message {
         this.chat = chat;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-	@Override
-	public String toString() {
-		return "Message [id=" + id + ", message=" + message + ", user=" + user + ", chat=" + chat + ", createdAt="
-				+ createdAt + "]";
-	}
-    
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // Automatically set created_at and updated_at before persisting or updating
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    @Override
+    public String toString() {
+        return "Message [id=" + id + ", message=" + message + ", user=" + user + ", chat=" + chat + ", createdAt="
+                + createdAt + ", updatedAt=" + updatedAt + "]";
+    }
 }

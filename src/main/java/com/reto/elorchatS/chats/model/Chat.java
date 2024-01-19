@@ -61,6 +61,11 @@ public class Chat {
 	public String toString() {
 		return "Chat [id=" + id + ", name=" + name + ", isPrivate=" + Private + "]";
 	}
+
+	public Object getUsers() {
+		// TODO Auto-generated method stub
+		return users;
+	}
     
 
     // Getters and setters, and any additional methods as needed

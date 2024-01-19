@@ -38,7 +38,7 @@ public class ChatController {
 	    	System.out.println(chat.toString());
 	    	return new ResponseEntity<Chat>(chat, HttpStatus.ACCEPTED);
 	}
-	 
+	
 	@PostMapping
 	    public ResponseEntity<Chat> createChat(@RequestBody Chat newChat) {
 	        Chat createdChat = chatService.createChat(newChat);
@@ -56,5 +56,5 @@ public class ChatController {
         chatService.deleteChat(chatId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
+    
 }

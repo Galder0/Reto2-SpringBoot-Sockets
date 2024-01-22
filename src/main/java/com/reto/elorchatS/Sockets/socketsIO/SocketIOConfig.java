@@ -2,9 +2,6 @@ package com.reto.elorchatS.Sockets.socketsIO;
 
 
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +11,9 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.reto.elorchatS.Messages.Service.MessageService;
-import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
 import com.reto.elorchatS.Sockets.model.MessageFromClient;
 import com.reto.elorchatS.Sockets.model.MessageFromServer;
 import com.reto.elorchatS.Sockets.model.MessageType;
-import com.reto.elorchatS.users.Service.UserService;
-import com.reto.elorchatS.users.model.User;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
@@ -64,12 +57,7 @@ public class SocketIOConfig {
     private static class MyConnectListener implements ConnectListener {
 
         private SocketIOServer server;
-        
-        @Autowired
-        UserService userService;
-        
-        @Autowired
-        MessageService messageService;
+       
         
 //        @Autowired
 //    	private JwtTokenUtil jwtUtil;
@@ -81,6 +69,7 @@ public class SocketIOConfig {
     	
     	 @Override
     	    public void onConnect(SocketIOClient client) {
+    		 System.out.println("pfff");
     	        HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
     	        if (headers.get(AUTHORIZATION_HEADER) == null) {
     	            System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());

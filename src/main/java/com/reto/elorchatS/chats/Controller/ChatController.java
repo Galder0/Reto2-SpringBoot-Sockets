@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.reto.elorchatS.ChatsUsers.Service.ChatUserService;
+import com.reto.elorchatS.ChatsUsers.model.ChatUser;
 import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.service.ChatService;
 
@@ -24,6 +26,9 @@ public class ChatController {
 
 	@Autowired
 	ChatService chatService;
+	
+	@Autowired
+	ChatUserService chatUserService;
 	
 	 @GetMapping
 	    public List<Chat> getAllChats() {
@@ -54,6 +59,27 @@ public class ChatController {
     @DeleteMapping("/{chatId}")
     public ResponseEntity<Void> deleteChat(@PathVariable Integer chatId) {
         chatService.deleteChat(chatId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    
+    @GetMapping("/Users")
+    public List<ChatUser> getAllChatUsers() {
+        return chatUserService.findAllChatUsers();
+    }
+    
+    @PostMapping("/joinChat")
+    public ResponseEntity<ChatUser> createChatUser(@RequestBody ChatUser chatUser) {
+        // Additional validation or business logic if needed
+
+        ChatUser createdChatUser = chatUserService.createChatUser(chatUser);
+
+        return new ResponseEntity<>(createdChatUser, HttpStatus.CREATED);
+    }
+    
+    @DeleteMapping("/leaveChat/{userId}/{chatId}")
+    public ResponseEntity<Void> deleteChatUser(@PathVariable Integer userId, @PathVariable Integer chatId) {
+        chatUserService.deleteChatUser(userId, chatId);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     

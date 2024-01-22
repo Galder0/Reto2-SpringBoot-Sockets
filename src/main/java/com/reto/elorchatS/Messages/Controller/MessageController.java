@@ -37,7 +37,7 @@ public class MessageController {
         }
     }
 	
-	@GetMapping("/chat/{chatId}")
+	@GetMapping("/{chatId}")
 	public ResponseEntity<List<MessageDAO>> getMessagesByChatId(@PathVariable Integer chatId) {
 	    List<MessageDAO> messageDAOs = messageService.findMessagesByChatId(chatId);
 

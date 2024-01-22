@@ -1,20 +1,35 @@
 package com.reto.elorchatS.ChatsUsers.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "chat_user")
 public class ChatUser {
 	
-private Integer id;
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 	
+	@Column(name = "user_id")
 	private Integer userId;
 	
+	
+	@Column(name = "chat_id")
 	private Integer chatId;
 	
-	private boolean isAdmin;
+	@Column(name = "isadmin")
+	private Boolean isAdmin;
 	
 	public ChatUser() {
 		
 	}
 
-	public ChatUser(Integer id, Integer userId, Integer chatId, boolean isAdmin) {
+	public ChatUser(Integer id, Integer userId, Integer chatId, Boolean isAdmin) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -46,11 +61,11 @@ private Integer id;
 		this.chatId = chatId;
 	}
 
-	public boolean isAdmin() {
+	public Boolean isAdmin() {
 		return isAdmin;
 	}
 
-	public void setAdmin(boolean isAdmin) {
+	public void setAdmin(Boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 

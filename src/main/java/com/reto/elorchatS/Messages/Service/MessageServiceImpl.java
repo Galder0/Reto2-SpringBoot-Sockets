@@ -36,14 +36,18 @@ public class MessageServiceImpl implements MessageService{
 	    Message newMessage = new Message();
 	    newMessage.setMessage(messageContent);
 
-	    // Set the user
-	    userService.findUserById(userId).ifPresent(newMessage::setUser);
+	    // Set the user and username
+	    userService.findUserById(userId).ifPresent(user -> {
+	        newMessage.setUser(user);
+	        newMessage.setName(user.getName()); // Assuming there's a getUsername() method in your User class
+	    });
 
 	    // Set the chat
 	    chatService.findChatById(chatId).ifPresent(newMessage::setChat);
 
 	    // Set the timestamp
 	    newMessage.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+	    System.out.println(newMessage.toString());
 
 	    // Save the message
 	    return messageRepository.save(newMessage);
@@ -69,9 +73,19 @@ public class MessageServiceImpl implements MessageService{
     }
 	
 	
-    private MessageDAO convertToMessageDAO(Message message) {
-        return modelMapper.map(message, MessageDAO.class);
-    }
+	private MessageDAO convertToMessageDAO(Message message) {
+	    modelMapper.typeMap(Message.class, MessageDAO.class)
+	            .addMappings(mapper -> {
+	                // Choose the appropriate source property for userName
+	                mapper.map(src -> src.getUser().getName(), MessageDAO::setName);
+	                // If the above line doesn't work, try the following alternatives:
+	                // mapper.map(src -> src.getUser().getName(), MessageDAO::setUserName);
+	                // mapper.map(Message::getUserName, MessageDAO::setUserName);
+	            });
+
+	    return modelMapper.map(message, MessageDAO.class);
+	}
+
 	
 
 }

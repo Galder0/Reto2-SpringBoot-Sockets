@@ -121,18 +121,24 @@ public class AuthController {
 	@PostMapping("/auth/change-password")
 	public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordRequest request, Authentication authentication) {
 	    try {
-	    	UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
+	        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+	        String authenticatedEmail = userDetails.getUsername();
+	        String providedEmail = request.getEmail();
 	        String oldPassword = request.getOldPassword();
 	        String newPassword = request.getNewPassword();
 
+	        // Check if the provided email matches the authenticated user's email
+	        if (!authenticatedEmail.equals(providedEmail)) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+
 	        // Log information for debugging
 	        System.out.println("Authentication Details: " + authentication);
-	        System.out.println("Email: " + email);
+	        System.out.println("Email: " + providedEmail);
 	        System.out.println("Old Password: " + oldPassword);
 	        System.out.println("New Password: " + newPassword);
 
-	        boolean passwordChanged = userService.changePassword(email, oldPassword, newPassword);
+	        boolean passwordChanged = userService.changePassword(providedEmail, oldPassword, newPassword);
 
 	        if (passwordChanged) {
 	            return ResponseEntity.ok().build();
@@ -144,6 +150,8 @@ public class AuthController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	    }
 	}
+
+
 	
 	
 }

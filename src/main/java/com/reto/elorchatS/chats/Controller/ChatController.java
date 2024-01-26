@@ -44,11 +44,15 @@ public class ChatController {
 	    	return new ResponseEntity<Chat>(chat, HttpStatus.ACCEPTED);
 	}
 	
-	@PostMapping
-	    public ResponseEntity<Chat> createChat(@RequestBody Chat newChat) {
-	        Chat createdChat = chatService.createChat(newChat);
-	        return new ResponseEntity<>(createdChat, HttpStatus.CREATED);
-	}
+	 @PostMapping
+	 public ResponseEntity<Integer> createChat(@RequestBody Chat newChat) {
+	     int chatId = chatService.createChat(newChat);
+	     
+	     // Assuming that chatService.createChat returns the ID of the created chat
+
+	     // Return the chat ID in the response body with HTTP status 201 CREATED
+	     return new ResponseEntity<>(chatId, HttpStatus.CREATED);
+	 }
 
     @PutMapping("/{chatId}")
     public ResponseEntity<Chat> updateChat(@PathVariable Integer chatId, @RequestBody Chat updatedChat) {

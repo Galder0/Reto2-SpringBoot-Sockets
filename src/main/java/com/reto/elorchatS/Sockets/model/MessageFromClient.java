@@ -1,6 +1,7 @@
 package com.reto.elorchatS.Sockets.model;
 
 public class MessageFromClient {
+	
     private String room;
     private String message;
 

@@ -6,6 +6,7 @@ public class MessageDAO {
 
     private Integer id;
     private String message;
+    private String name;
     private Integer userId;
     private Integer chatId;
     private Timestamp createdAt;
@@ -21,8 +22,46 @@ public class MessageDAO {
         this.chatId = chatId;
         this.createdAt = createdAt;
     }
+    
 
-    public Integer getId() {
+	public MessageDAO(Integer id, String message, String name, Integer userId, Integer chatId, Timestamp createdAt) {
+		super();
+		this.id = id;
+		this.message = message;
+		this.name = name;
+		this.userId = userId;
+		this.chatId = chatId;
+		this.createdAt = createdAt;
+	}
+	
+	public MessageDAO(String message, String name, Integer userId, Integer chatId, Timestamp createdAt) {
+		super();
+		this.message = message;
+		this.name = name;
+		this.userId = userId;
+		this.chatId = chatId;
+		this.createdAt = createdAt;
+	}
+	
+	
+	public MessageDAO( String message, String name, Integer userId, Integer chatId) {
+        super();
+        this.message = message;
+        this.name = name;
+        this.userId = userId;
+        this.chatId = chatId;
+
+    }
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -62,11 +101,11 @@ public class MessageDAO {
         this.createdAt = createdAt;
     }
 
+	@Override
+	public String toString() {
+		return "MessageDAO [id=" + id + ", message=" + message + ", name=" + name + ", userId=" + userId + ", chatId="
+				+ chatId + ", createdAt=" + createdAt + "]";
+	}
 
 
-    @Override
-    public String toString() {
-        return "MessageDAO [id=" + id + ", message=" + message + ", userId=" + userId + ", chatId=" + chatId
-                + ", createdAt=" + createdAt + "]";
-    }
 }

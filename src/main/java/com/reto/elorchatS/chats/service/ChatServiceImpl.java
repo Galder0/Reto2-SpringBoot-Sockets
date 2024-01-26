@@ -32,8 +32,11 @@ public class ChatServiceImpl implements ChatService{
 	}
 
 	@Override
-	public Chat createChat(Chat newChat) {
-	    return chatRepository.save(newChat);
+	public int createChat(Chat newChat) {
+	    Chat savedChat = chatRepository.save(newChat);
+
+	    // Assuming getId() returns the ID of the saved chat
+	    return (savedChat != null && savedChat.getId() > 0) ? savedChat.getId() : 0;
 	}
 
 	@Override
@@ -56,6 +59,12 @@ public class ChatServiceImpl implements ChatService{
         // Implement the logic to fetch chats based on user ID
         return chatRepository.findChatsByUserId(userId);
     }
+
+	@Override
+	public Optional<Chat> findChatByName(String chatName) {
+		// TODO Auto-generated method stub
+		return chatRepository.findByName(chatName);
+	}
     
     
     

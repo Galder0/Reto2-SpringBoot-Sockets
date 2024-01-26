@@ -10,8 +10,10 @@ public interface ChatService {
 	List<Chat> findAllChats();
 
 	Optional<Chat> findChatById(Integer chatId);
+	
+	Optional<Chat> findChatByName(String chatName);
 
-	Chat createChat(Chat newChat);
+	int createChat(Chat newChat);
 
 	Chat updateChat(Integer chatId, Chat updatedChat);
 

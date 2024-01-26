@@ -54,7 +54,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
    
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "chat_user",
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -63,7 +63,7 @@ public class User implements UserDetails {
     // @JsonBackReference
     private List<Chat> chats;
     
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "roles_users",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),

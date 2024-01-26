@@ -1,6 +1,7 @@
 package com.reto.elorchatS.chats.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +30,6 @@ public interface ChatRepository extends CrudRepository<Chat, Integer>{
     @Query(value = "DELETE FROM chat_user WHERE chat_id = :chatId AND user_id = :userId", nativeQuery = true)
     @Transactional
     void removeUserFromChat(@Param("chatId") Integer chatId, @Param("userId") Integer userId);
+
+	Optional<Chat> findByName(String chatName);
 }

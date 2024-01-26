@@ -33,11 +33,11 @@
 
     <script>
         // Conexion al servidor Socket.IO
-        const socket = io('http://localhost:8085',
+        const socket = io('http://10.5.7.39:8085',
             {
                 withCredentials: true,
-                extraHeaders: {
-                    "Authorization": "Bearer jwtDesdeWeb:33:webuser",
+                extraHeaders: { // Bearer
+                    "Authorization": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSIsImlzcyI6IkFEVF9EQU0iLCJpYXQiOjE3MDYwMjA5ODUsImV4cCI6MTcwNjEwNzM4NSwidXNlcklkIjowfQ.yoo3E9jtqNr0jWPu686vl6ccKXrzwbP_AHn7koK3_1W0MhSxeL9WrNp8P3fmPxYqe3vuRetKiWb7BV-YIu777A",
                 }
             }
         ); 

@@ -77,7 +77,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	}
 
 	
-	private UserDetails getUserDetails(String token) {
+	public UserDetails getUserDetails(String token) {
 		// genera los detalles del usuario a partir del jwt
 		//TODO sustituir el User por user DAO
 		User userDetails = new User();

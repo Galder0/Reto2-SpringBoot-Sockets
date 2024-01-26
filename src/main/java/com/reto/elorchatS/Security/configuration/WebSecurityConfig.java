@@ -67,7 +67,7 @@ public class WebSecurityConfig {
 				// employees
 				// permitimos el get a cualquiera
 				//.requestMatchers("/api/employees/{id}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}", "/api/messages", "/api/messages/{chatId}").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}", "/api/messages", "/api/messages/{chatId}", "api/users/{userId}/chats").permitAll()
 
 				// pagina chat
 				.requestMatchers(HttpMethod.GET, "/index.html").permitAll()

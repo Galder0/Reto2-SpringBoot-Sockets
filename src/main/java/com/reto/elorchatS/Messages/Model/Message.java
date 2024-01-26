@@ -27,6 +27,9 @@ public class Message {
 
     @Column(name = "message", nullable = false)
     private String message;
+    
+    @Column(name = "username")
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -46,7 +49,18 @@ public class Message {
 
     }
 
-    public Long getId() {
+
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public Long getId() {
         return id;
     }
 
@@ -105,9 +119,11 @@ public class Message {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
-    @Override
-    public String toString() {
-        return "Message [id=" + id + ", message=" + message + ", user=" + user + ", chat=" + chat + ", createdAt="
-                + createdAt + ", updatedAt=" + updatedAt + "]";
-    }
+
+	@Override
+	public String toString() {
+		return "Message [id=" + id + ", message=" + message + ", name=" + name + ", user=" + user + ", chat=" + chat
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+	}
+
 }

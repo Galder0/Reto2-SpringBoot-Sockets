@@ -30,19 +30,19 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "name" ,nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "surnames")
     private String surnames;
 
-    @Column
+    @Column(name = "DNI")
     private String DNI;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column
+    @Column(name = "direction")
     private String direction;
 
     @Column(name = "phone_number")
@@ -51,7 +51,7 @@ public class User implements UserDetails {
     @Column(name = "fct_dual")
     private Boolean fctDual;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
    
     @ManyToMany(fetch = FetchType.EAGER)

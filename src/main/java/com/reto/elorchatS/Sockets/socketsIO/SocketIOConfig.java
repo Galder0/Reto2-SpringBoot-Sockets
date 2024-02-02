@@ -1,63 +1,28 @@
 package com.reto.elorchatS.Sockets.socketsIO;
 
-
-
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.reto.elorchatS.Messages.Model.Message;
-import com.reto.elorchatS.Messages.Model.MessageDAO;
-import com.reto.elorchatS.Messages.Service.MessageService;
-import com.reto.elorchatS.Security.configuration.JwtTokenFilter;
-import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
+import com.reto.elorchatS.Firebase.Service.FirebaseMessagingOperationsService;
 import com.reto.elorchatS.Sockets.model.MessageFromClient;
 import com.reto.elorchatS.Sockets.model.MessageFromServer;
 import com.reto.elorchatS.Sockets.model.MessageType;
-import com.reto.elorchatS.chats.model.Chat;
-import com.reto.elorchatS.chats.service.ChatService;
-import com.reto.elorchatS.users.Service.UserService;
-import com.reto.elorchatS.users.model.User;
-
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
 
 @Configuration
 public class SocketIOConfig {
 	
-	@Autowired
-	MessageService messageService;
-	
-	@Autowired
-	ChatService chatService;
-	
-	@Autowired 
-  	AuthenticationManager authenticationManager;
-  	
-  	@Autowired 
-  	JwtTokenUtil jwtUtil;
-  	
-  	@Autowired
-	UserService userService;
-	
     @Value("${socket-server.host}")
     private String host;
-    
     @Value("${socket-server.port}")
     private Integer port;
     
@@ -66,8 +31,16 @@ public class SocketIOConfig {
     public final static String CLIENT_USER_NAME_PARAM = "authorname";
     public final static String CLIENT_USER_ID_PARAM = "authorid";
     public final static String AUTHORIZATION_HEADER = "Authorization";
-    
-    
+
+
+    @Autowired
+    private FirebaseMessagingOperationsService firebaseMessagingOperationsService;
+
+    /*
+    public SocketIOConfig(FirebaseMessaging fcm) {
+    	this.fcm = fcm;
+    }
+    */
     @Bean
     public SocketIOServer socketIOServer() {
     	com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
@@ -77,142 +50,66 @@ public class SocketIOConfig {
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
         config.setOrigin("http://localhost:8080");
-
         server = new SocketIOServer(config);
-
-        server.addConnectListener(new MyConnectListener(server, jwtUtil, userService));
+        server.addConnectListener(new MyConnectListener(server));
         server.addDisconnectListener(new MyDisconnectListener());
         server.addEventListener(SocketEvents.ON_MESSAGE_RECEIVED.value, MessageFromClient.class, onSendMessage());
         server.start();
-
         return server;
     }
-    @Component
     private static class MyConnectListener implements ConnectListener {
-
         private SocketIOServer server;
-       
         
-        @Autowired 
-    	AuthenticationManager authenticationManager;
-    	
-    	JwtTokenUtil jwtUtil;
-    	
-    	UserService userService;
-//    	
-//    	@Autowired
-//    	JwtTokenFilter jwtFilter;
-    
-        
-    	MyConnectListener(SocketIOServer server, JwtTokenUtil jwtUtil, UserService userService) {
+    	MyConnectListener(SocketIOServer server) {
     		this.server = server;
-    		this.jwtUtil = jwtUtil;
-    		this.userService = userService;
     	}
     	
-    	 @Override
-         public void onConnect(SocketIOClient client) {
-    		 
-    		 
-         	// ojo por que este codigo no esta bien en si
-         	
-         	// TODO el que no tenga autorization no deberia ni poder conectarse. gestionar
-         	HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
-         	if (headers.get(AUTHORIZATION_HEADER) == null) {
-         		// FUERA
-         		System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());
-         		client.disconnect();
-         	} else {
-         		loadClientData(headers, client);
-         		System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), this.server.getAllClients().size());
-         		
-         		// aqui incluso se podria notificar a todos o a salas de que se ha conectado...
-             	// server.getBroadcastOperations().sendEvent("chat message", messageFromServer);
-         	}
-         }
-
-
-    	 private void loadClientData(HttpHeaders headers, SocketIOClient client) {
-    		    try {
-    		        String jwt = headers.get(AUTHORIZATION_HEADER);
-    		        
-    		        System.out.println("llego aqui " + jwt);
-    		        /*
-    		        UserDetails userInfo = jwtFilter.getUserDetails("Bearer " + authorization);
-    		        
-    		        UserDetails userInfo2 = jwtFilter.getUserDetails(authorization);
-    		        
-    		        System.out.println("User Bearer " + userInfo.toString());
-    		        System.out.println("User " + userInfo2.toString());
-    		        */
-    		        boolean isOk = jwtUtil.validateAccessToken(jwt);
-    		        
-    		        System.out.println("El token " + isOk);
-    		        
-    		        // Check if jwtUtil is initialized
-    		        if (jwtUtil != null) {
-
-    		            System.out.println("jwtuTIL: no es nulo");
-    		            // Now you can use jwtUtil to get the user ID
-    		            int userId = jwtUtil.getUserId(jwt);
-    		            
-    		            System.out.println("USER ID: " + userId);
-    		            String authorId = String.valueOf(userId);
-    		            
-    		            User userLogged = userService.findUserById(userId).get();
-    		            
-    		            System.out.println("User Logged To String " + userLogged.toString());
-    		            
-    		            String authorName = userLogged.getName();
-
-    		            client.set(CLIENT_USER_ID_PARAM, authorId);
-    		            client.set(CLIENT_USER_NAME_PARAM, authorName);
-    		            
-    		            
-    		            try {
-    		                List<Chat> userLoggedChats = userLogged.getChats();  // Assuming you have a method to retrieve user chats
-
-    		                if (userLoggedChats != null && !userLoggedChats.isEmpty()) {
-    		                    for (Chat chat : userLoggedChats) {
-    		                        // Join the user to each chat room
-    		                        client.joinRoom(chat.getName()); // Assuming each chat has a roomName property
-    		                        System.out.println("User Joined " + chat.getName());
-    		                    }
-    		                } else {
-    		                    // If the user has no chats, join them to a default room
-    		                    client.joinRoom("default-room");
-    		                }
-    		            } catch (Exception e) {
-    		                e.printStackTrace();
-    		            }
-
-    		            //client.set(CLIENT_USER_ID_PARAM, authorId);
-    		            //client.set(CLIENT_USER_NAME_PARAM, authorName);
-    		            
-    		            // Extract other information from the JWT
-    		            //String jwt = authorization.split(" ")[1];
-    		            //String[] datos = jwt.split(":");
-    		            //String authorId = datos[1];
-    		            //String authorName = datos[2];
-    		            
-    		            // Set client properties
-    		            //client.set(CLIENT_USER_ID_PARAM, authorId);
-    		            //client.set(CLIENT_USER_NAME_PARAM, authorName);
-    		            
-    		            // Example of joining rooms
-    		        } else {
-    		            // Handle the case where jwtUtil is not initialized
-    		            System.err.println("jwtUtil is not initialized!");
-    		        }
-    		    } catch (Exception e) {
-    		        e.printStackTrace();
-    		    }
-    		}
+        @Override
+        public void onConnect(SocketIOClient client) {
+        	// ojo por que este codigo no esta bien en si
+        	
+        	// TODO el que no tenga autorization no deberia ni poder conectarse. gestionar
+        	HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
+        	if (headers.get(AUTHORIZATION_HEADER) == null) {
+        		// FUERA
+        		System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());
+        		client.disconnect();
+        	} else {
+        		loadClientData(headers, client);
+        		System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), this.server.getAllClients().size());
+        		
+        		// aqui incluso se podria notificar a todos o a salas de que se ha conectado...
+            	// server.getBroadcastOperations().sendEvent("chat message", messageFromServer);
+        	}
+        }
+		private void loadClientData(HttpHeaders headers, SocketIOClient client) {
+			try {
+				String authorization = headers.get(AUTHORIZATION_HEADER);
+				String jwt = authorization.split(" ")[1];
+				
+	    		// TODO HAY QUE VALIDAR Y CARGAR ESTOS DATOS DEL JWT! y si no no dejar conectarle o desconectarle
+				// si esta autenticado y puede, meterle en sus salas correspondientes...
+				// Esto está hardcodeado
+				// vamos a meter el userId y el userName en el socket, para futuras operaciones.
+				
+				String[] datos = jwt.split(":");
+				String authorId = datos[1];
+				String authorName = datos[2];
+				client.set(CLIENT_USER_ID_PARAM, authorId);
+				client.set(CLIENT_USER_NAME_PARAM, authorName);
+				
+				// TODO ejemplo de salas
+				// ojo por que "Room1" no es la misma sala que "room1"
+				client.joinRoom("default-room");
+				client.joinRoom("Room1");
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
     }
     
     private static class MyDisconnectListener implements DisconnectListener {
-    	
-    	
     	@Override
 		public void onDisconnect(SocketIOClient client) {
 			client.getNamespace().getAllClients().stream().forEach(data-> {
@@ -220,7 +117,6 @@ public class SocketIOConfig {
 				// notificateDisconnectToUsers(client);
 			});
 		}
-
 		// podemos notificar a los demas usuarios que ha salido. Ojo por que el broadcast envia a todos
     	private void notificateDisconnectToUsers(SocketIOClient client) {
 			String room = null;
@@ -242,7 +138,7 @@ public class SocketIOConfig {
     
     private DataListener<MessageFromClient> onSendMessage() {
         return (senderClient, data, acknowledge) -> {
-        	System.out.printf("Mensaje recibido");
+        	
         	String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
         	Integer authorId = Integer.valueOf(authorIdS);
         	String authorName = senderClient.get(CLIENT_USER_NAME_PARAM);
@@ -252,53 +148,27 @@ public class SocketIOConfig {
         	// TODO comprobar si el usuario esta en la room a la que quiere enviar...
         	boolean isAllowedToSendToRoom = checkIfSendCanSendToRoom(senderClient, data.getRoom());
         	if (isAllowedToSendToRoom) {
-        		
-        		Chat chatDB = chatService.findChatByName(data.getRoom()).get();
-        		
-        		System.out.println("Grupo Del Mensaje " + chatDB.toString());
-
-            	MessageDAO message = new MessageDAO(
+            	MessageFromServer message = new MessageFromServer(
+            		MessageType.CLIENT, 
+            		data.getRoom(), 
             		data.getMessage(), 
-            		authorName,
-            		authorId,
-            		chatDB.getId(),
-            		new Timestamp(System.currentTimeMillis())
+            		authorName, 
+            		authorId
             	);
             	
-//            	MessageFromServer message = new MessageFromServer(
-//            		MessageType.CLIENT, 
-//            		data.getRoom(), 
-//            		data.getMessage(), 
-//            		authorName, 
-//            		authorId
-//                );
-            
             	// enviamos a la room correspondiente:
             	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
-            	
-            	
-            	Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
-            	
-            	System.out.println("Message created on the DB" + created.toString());
-            	
-//            	List<MessageDAO> messages = messageService.getAllMessages();
-//            	
-//            	System.out.println("Prueba Mensajes " + messages.toString());
-            	
             	// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
             	// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
-            	
+
             	// esto puede que veamos mas adelante
                 // acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
+
+            	// enviar notificaciones
+            	List<String> deviceTokens = new ArrayList<String>();
+            	deviceTokens.add("fELjajD7Q-mg4nUrPMzOPa:APA91bEUjgJdPiD7dSYh5FW44rkq9b3FABvAVW9fhHFdGXhnHvcXFXqu4gJxBJNnwO6wv962hPGVVdGMrn0K_7Nm3-TwL5D2duhsjbjQN_GltVa8Ck2VbBKFu3vXoGYN8kzdHtnTeIo4");
+            	firebaseMessagingOperationsService.sendMulticastNotification(deviceTokens);
         	} else {
-        		
-        		MessageFromServer message = new MessageFromServer(
-                		MessageType.SERVER, 
-                		data.getRoom(), 
-                		"ERROR AL ENVIAR EL MENSAJE", 
-                		authorName, 
-                		authorId
-                	);
         		// TODO
         		// como minimo no dejar. se podria devolver un mensaje como MessageType.SERVER de que no puede enviar...
         		// incluso ampliar la clase messageServer con otro enum de errores
@@ -307,7 +177,9 @@ public class SocketIOConfig {
         };
     }
 
-    private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
+
+
+	private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
     	if (senderClient.getAllRooms().contains(room)) {
     		System.out.println("SI tiene permiso para enviar mensaje en la room");
     		return true;
@@ -316,7 +188,6 @@ public class SocketIOConfig {
     		return false;
     	}
 	}
-
 	@PreDestroy
 	public void stopSocketIOServer() {
 		this.server.stop();

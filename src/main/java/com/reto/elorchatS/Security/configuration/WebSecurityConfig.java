@@ -62,12 +62,12 @@ public class WebSecurityConfig {
 				
 				// vamos a permitir registro y login para todos. Al no especificar metodo
 				// podran hacer todos los metodos a dichas urls...
-				.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "api/chats/joinChatEmail", "api/chats/leaveChatEmail").permitAll()
 				
 				// employees
 				// permitimos el get a cualquiera
 				//.requestMatchers("/api/employees/{id}").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}", "/api/messages", "/api/messages/{chatId}", "api/users/{userId}/chats").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/chats", "/api/chats/{chatId}", "/api/users", "api/users/{userId}", "/api/messages", "/api/messages/{chatId}", "api/users/{userId}/chats", "api/chats/adminChats/{userId}").permitAll()
 
 				// pagina chat
 				.requestMatchers(HttpMethod.GET, "/index.html").permitAll()

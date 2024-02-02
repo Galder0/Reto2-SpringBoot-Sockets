@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.repository.ChatRepository;
+import com.reto.elorchatS.users.model.User;
 
 import jakarta.transaction.Transactional;
 
@@ -64,6 +65,28 @@ public class ChatServiceImpl implements ChatService{
 	public Optional<Chat> findChatByName(String chatName) {
 		// TODO Auto-generated method stub
 		return chatRepository.findByName(chatName);
+	}
+
+	public List<Chat> findChatsByIds(List<Integer> chatIds) {
+        return (List<Chat>) chatRepository.findAllById(chatIds);
+    }
+
+	@Override
+    public List<Chat> getChatsForAdminUser(Integer userId) {
+        // Assuming you have a method in your repository to handle this query
+        // Adjust the method name according to your repository
+        return chatRepository.findChatsByAdminAndUserId(userId);
+    }
+
+	@Override
+	public Boolean isUserOnChat(User user, Chat chat) {
+	    if (chat == null || user == null || chat.getUsers() == null) {
+	        return false; // Handle null parameters or empty user list
+	    }
+
+	    List<User> userList = (List<User>) chat.getUsers();
+
+	    return userList.contains(user);
 	}
     
     

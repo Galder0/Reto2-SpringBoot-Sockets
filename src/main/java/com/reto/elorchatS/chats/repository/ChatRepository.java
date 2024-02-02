@@ -9,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import com.reto.elorchatS.chats.model.Chat;
+import com.reto.elorchatS.chats.model.ChatDAO;
 
 import jakarta.transaction.Transactional;
 
@@ -32,4 +33,9 @@ public interface ChatRepository extends CrudRepository<Chat, Integer>{
     void removeUserFromChat(@Param("chatId") Integer chatId, @Param("userId") Integer userId);
 
 	Optional<Chat> findByName(String chatName);
+	
+	@Modifying
+	@Query("SELECT c FROM Chat c JOIN ChatUser cu ON c.id = cu.chatId WHERE cu.isAdmin = true AND cu.userId = :userId")
+    @Transactional
+	List<Chat> findChatsByAdminAndUserId(@Param("userId") Integer userId);
 }

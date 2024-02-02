@@ -2,13 +2,17 @@ package com.reto.elorchatS.ChatsUsers.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reto.elorchatS.ChatsUsers.Repository.ChatUserRepository;
 import com.reto.elorchatS.ChatsUsers.model.ChatUser;
+import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.repository.ChatRepository;
+import com.reto.elorchatS.chats.service.ChatService;
 import com.reto.elorchatS.users.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -20,12 +24,12 @@ public class ChatUserServiceImpl implements ChatUserService{
  @Autowired
  ChatRepository chatRepository;
 
-    @Autowired
-    UserRepository userRepository;
+ @Autowired
+ UserRepository userRepository;
     
-    @Autowired
-    ChatUserRepository chatUserRepository;
-
+ @Autowired
+ ChatUserRepository chatUserRepository;
+ 
 	@Override
 	public void joinChat(Integer chatId, Integer userId) {
 		// TODO Auto-generated method stub
@@ -110,4 +114,22 @@ public class ChatUserServiceImpl implements ChatUserService{
 //        }
 //    }
 
+//	@Override
+//	public List<ChatUser> findAdminChatsByUserId(Integer userId) {
+//	    // Assuming you have a repository method to retrieve admin chats by user id
+//	    List<ChatUser> adminChatUsers = chatUserRepository.findByUserIdAndAdmin(userId, true);
+//
+//	    // You might want to handle the case when no admin chats are found
+//	    if (adminChatUsers.isEmpty()) {
+//	        return Collections.emptyList();
+//	    }
+//
+//	    // If you need to retrieve full chat information, you can do that here
+//	    List<Integer> adminChatIds = adminChatUsers.stream()
+//	            .map(ChatUser::getChatId)
+//	            .collect(Collectors.toList());
+//
+//	    // Retrieve full chat information using the chatUserRepository
+//	    return chatUserRepository.findByChatIdIn(adminChatIds);
+//	}
 }

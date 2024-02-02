@@ -28,7 +28,7 @@ public class SocketController {
     
     
 
-    @GetMapping("/send-message")
+    @GetMapping("/sendessage")
     public String sendMessage() {
         // Envia un mensaje a todos los clientes conectados
     	
@@ -47,60 +47,72 @@ public class SocketController {
     }
     
     // deberia ser un POST y con body, pero para probar desde el navegador...
-    @GetMapping("/join-room/{room}/{idUser}")
+    @GetMapping("/joinRoom/{room}/{idUser}")
     public String joinRoom(@PathVariable("room") String room, @PathVariable("idUser") Integer idUser) {
     	
-    	
-    	SocketIOClient client = findClientByUserId(idUser);
-    	if (client != null) {
-    		client.joinRoom(room);
-    		
-    		// se podria notificar a aquellos que estan en la room
-    		// socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, "el usuario XXXXXX se ha unido a la sala " + room);
-    		
-    		// aunque lo interesante y lo que habra que hacer es notificarle a dicho cliente que ha accedido a la room
+    	System.out.println("socket Join Get Request 1");
+        SocketIOClient client = findClientByUserId(idUser);
+        if (client != null) {
+            client.joinRoom(room);
 
-        	return "Usuario unido a la sala";
-    	} else {
-    		return "Ese usuario no esta conectado";
-    	}
-    	
+            System.out.println("socket Join Get Request 2");
+            // Emit a custom event to notify others in the room
+            socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_JOINED_ROOM.value, "User with ID " + idUser + " has joined the room " + room);
+            
+            // You can also send a welcome message to the user who joined
+            client.sendEvent(SocketEvents.ON_JOINED_ROOM.value, "Welcome to the room " + room);
+            System.out.println("socket Join Get Request 3");
+
+            return "Usuario unido a la sala";
+        } else {
+            return "Ese usuario no está conectado";
+        }
     }
     
     
     // deberia ser un POST y con body, pero para probar desde el navegador...
-    @GetMapping("/leave-room/{room}/{idUser}")
+    @GetMapping("/leaveRoom/{room}/{idUser}")
     public String leaveRoom(@PathVariable("room") String room, @PathVariable("idUser") Integer idUser) {
     	
-    	SocketIOClient client = findClientByUserId(idUser);
-    	if (client != null) {
-    		System.out.println(client.getAllRooms().size());
-    		client.leaveRoom(room);
-    		System.out.println(client.getAllRooms().size());
-    		// se podria notificar a aquellos que estan en la room
-    		// socketIoServer.getRoomOperations(room).sendEvent("chat message", "el usuario XXXXXX se ha ido de la sala " + room);
-    		// podriamos registrar distintos eventos, no "chat message" para estos casos
-    	
-    		// lo interesante y lo que habra que hacer es notificarle a dicho cliente que ha sido eliminado de la room
-			return "Usuario expulsado de la sala";
-		} else {
-			return "Ese usuario no estaba conectado";
-		}
+    	System.out.println("socket left Get Request 1");
+        SocketIOClient client = findClientByUserId(idUser);
+        if (client != null) {
+            client.leaveRoom(room);
+
+            System.out.println("socket left Get Request 2");
+            // Emit a custom event to notify others in the room
+            socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_LEFT_ROOM.value, "User with ID " + idUser + " has left the room " + room);
+            
+            // You can also send a welcome message to the user who joined
+            client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, "You left the room " + room);
+            System.out.println("socket left Get Request 3");
+
+            return "Usuario se ha ido de la sala";
+        } else {
+            return "Ese usuario no está conectado";
+        }
     }
     
     
     private SocketIOClient findClientByUserId(Integer idUser) {
-    	SocketIOClient response = null;
-    	
-    	Collection<SocketIOClient> clients = socketIoServer.getAllClients();
-    	for (SocketIOClient client: clients) {
-    		Integer currentClientId = Integer.valueOf(client.get(SocketIOConfig.CLIENT_USER_ID_PARAM));
-    		if (currentClientId == idUser) {
-    			response = client;
-    			break;
-    		}
-    	}
-    	
-    	return response;
+        Collection<SocketIOClient> clients = socketIoServer.getAllClients();
+
+        for (SocketIOClient client : clients) {
+            String userIdParam = client.get(SocketIOConfig.CLIENT_USER_ID_PARAM);
+
+            try {
+                if (userIdParam != null) {
+                    Integer currentClientId = Integer.valueOf(userIdParam);
+
+                    if (idUser.equals(currentClientId)) {
+                        return client;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                // Handle the exception (e.g., log it)
+            }
+        }
+
+        return null; // Return null if no matching client is found
     }
 }

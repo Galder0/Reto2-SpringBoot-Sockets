@@ -10,68 +10,66 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "chat_user")
 public class ChatUser {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
-	
-	@Column(name = "user_id")
-	private Integer userId;
-	
-	
-	@Column(name = "chat_id")
-	private Integer chatId;
-	
-	@Column(name = "isadmin")
-	private Boolean isAdmin;
-	
-	public ChatUser() {
-		
-	}
+    private Integer id;
 
-	public ChatUser(Integer id, Integer userId, Integer chatId, Boolean isAdmin) {
-		super();
-		this.id = id;
-		this.userId = userId;
-		this.chatId = chatId;
-		this.isAdmin = isAdmin;
-	}
+    @Column(name = "user_id")
+    private Integer userId;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "chat_id")
+    private Integer chatId;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "isadmin")
+    private Boolean isAdmin;
 
-	public Integer getUserId() {
-		return userId;
-	}
+    public ChatUser() {
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+    }
 
-	public Integer getChatId() {
-		return chatId;
-	}
+    public ChatUser(Integer id, Integer userId, Integer chatId, Boolean isAdmin) {
+        super();
+        this.id = id;
+        this.userId = userId;
+        this.chatId = chatId;
+        this.isAdmin = isAdmin;
+    }
 
-	public void setChatId(Integer chatId) {
-		this.chatId = chatId;
-	}
+    public Boolean isAdmin() {
+        return isAdmin;
+    }
 
-	public Boolean isAdmin() {
-		return isAdmin;
-	}
+    public void setAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
 
-	public void setAdmin(Boolean isAdmin) {
-		this.isAdmin = isAdmin;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-		return "prueba [id=" + id + ", userId=" + userId + ", chatId=" + chatId + ", isAdmin=" + isAdmin + "]";
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Integer chatId) {
+        this.chatId = chatId;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatUser [id=" + id + ", userId=" + userId + ", chatId=" + chatId + ", isAdmin=" + isAdmin + "]";
+    }
 }

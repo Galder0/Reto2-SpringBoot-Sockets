@@ -26,6 +26,7 @@ import com.reto.elorchatS.Messages.Model.MessageDAO;
 import com.reto.elorchatS.Messages.Service.MessageService;
 import com.reto.elorchatS.Security.configuration.JwtTokenFilter;
 import com.reto.elorchatS.Security.configuration.JwtTokenUtil;
+import com.reto.elorchatS.Sockets.model.JoinRoom;
 import com.reto.elorchatS.Sockets.model.MessageFromClient;
 import com.reto.elorchatS.Sockets.model.MessageFromServer;
 import com.reto.elorchatS.Sockets.model.MessageType;
@@ -83,11 +84,13 @@ public class SocketIOConfig {
         server.addConnectListener(new MyConnectListener(server, jwtUtil, userService));
         server.addDisconnectListener(new MyDisconnectListener());
         server.addEventListener(SocketEvents.ON_MESSAGE_RECEIVED.value, MessageFromClient.class, onSendMessage());
+        server.addEventListener(SocketEvents.ON_JOINED_ROOM.value, String.class, onJoinRoom());
+        server.addEventListener(SocketEvents.ON_LEFT_ROOM.value, String.class, onLeftRoom());
         server.start();
 
         return server;
     }
-    @Component
+	@Component
     private static class MyConnectListener implements ConnectListener {
 
         private SocketIOServer server;
@@ -306,6 +309,42 @@ public class SocketIOConfig {
         	}
         };
     }
+    
+    private DataListener<String> onJoinRoom() {
+        return (client, room, ackSender) -> {
+            // Extract user details from the client
+            String userId = client.get(CLIENT_USER_ID_PARAM);
+            String userName = client.get(CLIENT_USER_NAME_PARAM);
+
+            client.joinRoom(room);
+            System.out.printf("User %s (%s) joined room %s\n", userId, userName, room);
+
+            // TODO: Implement your custom logic when a user joins a room
+
+            // For example, send a welcome message to the user
+            String welcomeMessage = "Welcome to the room, " + userName + "!";
+            client.sendEvent(SocketEvents.ON_JOINED_ROOM.value, welcomeMessage);
+        };
+    }
+    private DataListener<String> onLeftRoom() {
+        return (client, room, ackSender) -> {
+            // Extract user details from the client
+            String userId = client.get(CLIENT_USER_ID_PARAM);
+            String userName = client.get(CLIENT_USER_NAME_PARAM);
+
+            client.leaveRoom(room);
+            System.out.printf("User %s (%s) left room %s\n", userId, userName, room);
+
+            // TODO: Implement your custom logic when a user joins a room
+
+            // For example, send a welcome message to the user
+            String welcomeMessage = "Left the room, " + userName + "!";
+            client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, welcomeMessage);
+        };
+    }
+    
+    
+    
 
     private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
     	if (senderClient.getAllRooms().contains(room)) {

@@ -9,7 +9,11 @@ import org.springframework.context.annotation.Bean;
 public class ElorchatSApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ElorchatSApplication.class, args);
+		//SpringApplication.run(ElorchatSApplication.class, args);
+		
+		SpringApplication application = new SpringApplication(ElorchatSApplication.class);
+		application.setAdditionalProfiles("ssl");
+        application.run(args);
 	}
 	
 	@Bean

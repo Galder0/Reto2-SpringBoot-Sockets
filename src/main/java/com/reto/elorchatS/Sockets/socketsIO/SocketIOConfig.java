@@ -34,6 +34,9 @@ import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.service.ChatService;
 import com.reto.elorchatS.users.Service.UserService;
 import com.reto.elorchatS.users.model.User;
+import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.core.io.Resource;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
@@ -62,6 +65,12 @@ public class SocketIOConfig {
     @Value("${socket-server.port}")
     private Integer port;
     
+    @Value("${server.ssl.key-store-password}")
+    private String keyStorePassword;
+
+    @Value("${server.ssl.key-store}")
+    private Resource keyStoreFile;
+    
     private SocketIOServer server;
     
     public final static String CLIENT_USER_NAME_PARAM = "authorname";
@@ -70,14 +79,19 @@ public class SocketIOConfig {
     
     
     @Bean
-    public SocketIOServer socketIOServer() {
+    public SocketIOServer socketIOServer() throws IOException {
     	com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname(host);
         config.setPort(port);
         
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
-        config.setOrigin("http://localhost:8080");
+        config.setOrigin("https://10.5.7.39:8080");
+
+        // nuevo: cargar el certificado
+        config.setKeyStorePassword(keyStorePassword);
+        InputStream stream = keyStoreFile.getInputStream();
+        config.setKeyStore(stream);
 
         server = new SocketIOServer(config);
 

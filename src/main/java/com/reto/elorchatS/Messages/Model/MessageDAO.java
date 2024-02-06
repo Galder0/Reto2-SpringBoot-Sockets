@@ -6,6 +6,7 @@ public class MessageDAO {
 
     private Integer id;
     private String message;
+    private String image;
     private String name;
     private Integer userId;
     private Integer chatId;
@@ -52,6 +53,28 @@ public class MessageDAO {
         this.chatId = chatId;
 
     }
+	
+	public MessageDAO( String message,String image, String name, Integer userId, Integer chatId) {
+        super();
+        this.message = message;
+        this.image = image;
+        this.name = name;
+        this.userId = userId;
+        this.chatId = chatId;
+
+    }
+
+	public MessageDAO(Integer id, String message, String image, String name, Integer userId, Integer chatId,
+			Timestamp createdAt) {
+		super();
+		this.id = id;
+		this.message = message;
+		this.image = image;
+		this.name = name;
+		this.userId = userId;
+		this.chatId = chatId;
+		this.createdAt = createdAt;
+	}
 
 	public String getName() {
 		return name;
@@ -101,10 +124,18 @@ public class MessageDAO {
         this.createdAt = createdAt;
     }
 
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	@Override
 	public String toString() {
-		return "MessageDAO [id=" + id + ", message=" + message + ", name=" + name + ", userId=" + userId + ", chatId="
-				+ chatId + ", createdAt=" + createdAt + "]";
+		return "MessageDAO [id=" + id + ", message=" + message + ", image=" + image + ", name=" + name + ", userId="
+				+ userId + ", chatId=" + chatId + ", createdAt=" + createdAt + "]";
 	}
 
 

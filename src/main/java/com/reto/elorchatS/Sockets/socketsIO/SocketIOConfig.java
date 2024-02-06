@@ -2,7 +2,10 @@ package com.reto.elorchatS.Sockets.socketsIO;
 
 
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +37,7 @@ import com.reto.elorchatS.chats.model.Chat;
 import com.reto.elorchatS.chats.service.ChatService;
 import com.reto.elorchatS.users.Service.UserService;
 import com.reto.elorchatS.users.model.User;
+import org.apache.commons.io.FileUtils;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
@@ -245,69 +249,56 @@ public class SocketIOConfig {
     
     private DataListener<MessageFromClient> onSendMessage() {
         return (senderClient, data, acknowledge) -> {
-        	System.out.printf("Mensaje recibido");
-        	String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
-        	Integer authorId = Integer.valueOf(authorIdS);
-        	String authorName = senderClient.get(CLIENT_USER_NAME_PARAM);
-        	
-        	System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", authorId, authorName, data.toString());
-        	
-        	// TODO comprobar si el usuario esta en la room a la que quiere enviar...
-        	boolean isAllowedToSendToRoom = checkIfSendCanSendToRoom(senderClient, data.getRoom());
-        	if (isAllowedToSendToRoom) {
-        		
-        		Chat chatDB = chatService.findChatByName(data.getRoom()).get();
-        		
-        		System.out.println("Grupo Del Mensaje " + chatDB.toString());
+            System.out.println("Mensaje recibido");
+            String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
+            Integer authorId = Integer.valueOf(authorIdS);
+            String authorName = senderClient.get(CLIENT_USER_NAME_PARAM);
 
-            	MessageDAO message = new MessageDAO(
-            		data.getMessage(), 
-            		authorName,
-            		authorId,
-            		chatDB.getId(),
-            		new Timestamp(System.currentTimeMillis())
-            	);
-            	
-//            	MessageFromServer message = new MessageFromServer(
-//            		MessageType.CLIENT, 
-//            		data.getRoom(), 
-//            		data.getMessage(), 
-//            		authorName, 
-//            		authorId
-//                );
-            
-            	// enviamos a la room correspondiente:
-            	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
-            	
-            	
-            	Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
-            	
-            	System.out.println("Message created on the DB" + created.toString());
-            	
-//            	List<MessageDAO> messages = messageService.getAllMessages();
-//            	
-//            	System.out.println("Prueba Mensajes " + messages.toString());
-            	
-            	// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
-            	// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
-            	
-            	// esto puede que veamos mas adelante
-                // acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
-        	} else {
-        		
-        		MessageFromServer message = new MessageFromServer(
-                		MessageType.SERVER, 
-                		data.getRoom(), 
-                		"ERROR AL ENVIAR EL MENSAJE", 
-                		authorName, 
-                		authorId
-                	);
-        		// TODO
-        		// como minimo no dejar. se podria devolver un mensaje como MessageType.SERVER de que no puede enviar...
-        		// incluso ampliar la clase messageServer con otro enum de errores
-        		// o crear un evento nuevo, no "chat message" con otros datos
-        	}
+            System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", authorId, authorName, data.toString());
+
+            // Check if the message contains an image
+            if (data.getMessage() != null && !data.getMessage().isEmpty() && data.getMessage().startsWith("data:image")) {
+                String imagePath = saveImageToFile(data.getMessage());
+                if (imagePath != null) {
+                    data.setMessage("[Image: " + imagePath + "]"); // Update message with image path
+                }
+            }
+
+            // TODO comprobar si el usuario esta en la room a la que quiere enviar...
+            boolean isAllowedToSendToRoom = checkIfSendCanSendToRoom(senderClient, data.getRoom());
+            if (isAllowedToSendToRoom) {
+                Chat chatDB = chatService.findChatByName(data.getRoom()).orElseThrow(() -> new RuntimeException("Chat not found"));
+
+                System.out.println("Grupo Del Mensaje " + chatDB.toString());
+
+                Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
+
+                System.out.println("Message created on the DB" + created.toString());
+                server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, created);
+            } else {
+                MessageFromServer message = new MessageFromServer(
+                        MessageType.SERVER,
+                        data.getRoom(),
+                        "ERROR AL ENVIAR EL MENSAJE",
+                        authorName,
+                        authorId
+                );
+                // Handle error sending
+            }
         };
+    }
+    private String saveImageToFile(String imageBase64) {
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(imageBase64);
+            String fileName = "image_" + System.currentTimeMillis() + ".jpg"; // Generate unique file name
+            String folderPath = "src/main/resources/images"; // Specify the folder where you want to save the images
+            String filePath = folderPath + fileName;
+            FileUtils.writeByteArrayToFile(new File(filePath), decodedBytes);
+            return filePath;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     
     private DataListener<String> onJoinRoom() {

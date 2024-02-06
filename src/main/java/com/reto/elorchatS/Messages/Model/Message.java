@@ -44,7 +44,11 @@ public class Message {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
+    
+    @Column(name = "image", nullable = true)
+    private String image;
+    
+    
     public Message() {
 
     }
@@ -107,8 +111,20 @@ public class Message {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
+    
+    
 
-    // Automatically set created_at and updated_at before persisting or updating
+    public String getImage() {
+		return image;
+	}
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
+	// Automatically set created_at and updated_at before persisting or updating
     @PrePersist
     protected void onCreate() {
         this.createdAt = new Timestamp(System.currentTimeMillis());
@@ -123,7 +139,7 @@ public class Message {
 	@Override
 	public String toString() {
 		return "Message [id=" + id + ", message=" + message + ", name=" + name + ", user=" + user + ", chat=" + chat
-				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", image=" + image + "]";
 	}
 
 }

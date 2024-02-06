@@ -2,8 +2,16 @@ package com.reto.elorchatS.Sockets.socketsIO;
 
 
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -359,5 +367,45 @@ public class SocketIOConfig {
 	@PreDestroy
 	public void stopSocketIOServer() {
 		this.server.stop();
+	}
+	
+	public MessageDAO testImages(MessageDAO message)  throws IOException{
+		
+		MessageDAO response = new MessageDAO();
+		
+		String imageString = message.getMessage();
+		
+		String extensionArchivo = detectMimeType(imageString);
+		
+		String fileName = "prueba32" + extensionArchivo;
+		
+		String outputFile = "src/main/resources/images/" + fileName;
+		
+		byte[] decodeImg = Base64.getDecoder().decode(imageString.getBytes(StandardCharsets.UTF_8));
+		
+		Path destinationFile = Paths.get(outputFile);
+		
+		Files.write(destinationFile, decodeImg);
+		
+		return response;
+	}
+	
+	private String detectMimeType(String base64Content) {
+		HashMap<String, String> signatures = new HashMap<String, String>();
+		
+		signatures.put("JVBERi0", ".pdf");
+		signatures.put("R0lGODdh", ".gif");
+		signatures.put("R0lGODdh", ".gif");
+		signatures.put("iVBORw0KGgo", ".png");
+		signatures.put("/9j/", ".jpg");
+		String response = "";
+		
+		for(Map.Entry<String, String> entry : signatures.entrySet()) {
+			String key = entry.getKey();
+			if(base64Content.indexOf(key) == 0) {
+				response = entry.getValue();
+			}
+		}
+		return response;
 	}
 }

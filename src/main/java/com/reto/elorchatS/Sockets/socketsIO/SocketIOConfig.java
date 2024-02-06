@@ -83,6 +83,8 @@ public class SocketIOConfig {
         config.setHostname(host);
         config.setPort(port);
         
+        config.setMaxFramePayloadLength(100000);
+        
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
         config.setOrigin("http://localhost:8080");
@@ -275,6 +277,9 @@ public class SocketIOConfig {
             		chatDB.getId(),
             		new Timestamp(System.currentTimeMillis())
             	);
+            	MessageDAO newMesage = testImage(message);
+            	
+            	System.out.println(newMesage.toString());
             	
 //            	MessageFromServer message = new MessageFromServer(
 //            		MessageType.CLIENT, 
@@ -288,9 +293,9 @@ public class SocketIOConfig {
             	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
             	
             	
-            	Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
+            	//Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
             	
-            	System.out.println("Message created on the DB" + created.toString());
+            	//System.out.println("Message created on the DB" + created.toString());
             	
 //            	List<MessageDAO> messages = messageService.getAllMessages();
 //            	
@@ -369,7 +374,7 @@ public class SocketIOConfig {
 		this.server.stop();
 	}
 	
-	public MessageDAO testImages(MessageDAO message)  throws IOException{
+	public MessageDAO testImage (MessageDAO message)  throws IOException{
 		
 		MessageDAO response = new MessageDAO();
 		

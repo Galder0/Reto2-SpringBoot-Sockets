@@ -104,6 +104,12 @@ public class ChatServiceImpl implements ChatService{
 	    // If no chat with the specified name is found, return null
 	    return null;
 	}
+  
+  @Override
+	public List<Chat> findAllPublicChats() {
+		return chatRepository.findAllPublicChats();
+	}
+    
     
     
 }

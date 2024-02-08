@@ -28,6 +28,6 @@ public interface ChatService {
 
 	Boolean isUserOnChat(User user, Chat chat);
 	
-	
+	List<Chat> findAllPublicChats();
 	
 }

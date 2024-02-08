@@ -221,6 +221,9 @@ public class ChatController {
         return chatService.getChatsForAdminUser(userId);
     }
     
-    
+    @GetMapping("/publicChats")
+    public List<Chat> getAllPublicChats() {
+    	return chatService.findAllPublicChats();
+    }
     
 }

@@ -88,6 +88,11 @@ public class ChatServiceImpl implements ChatService{
 
 	    return userList.contains(user);
 	}
+
+	@Override
+	public List<Chat> findAllPublicChats() {
+		return chatRepository.findAllPublicChats();
+	}
     
     
     

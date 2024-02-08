@@ -98,7 +98,7 @@ public class SocketIOConfig {
         
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
-        config.setOrigin("https://10.5.7.39:8080");
+        config.setOrigin("https://localhost:8080");
 
         // nuevo: cargar el certificado
         config.setKeyStorePassword(keyStorePassword);

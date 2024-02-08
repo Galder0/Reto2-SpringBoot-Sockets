@@ -114,6 +114,15 @@ public class ChatUserServiceImpl implements ChatUserService{
 //        }
 //    }
 
+	@Override
+	public List<ChatUser> findChatUsersFromUserId(Integer userId) {
+	    // TODO: Implement the logic to query your database or data source
+	    // Example: Assuming you have a method in your data repository to fetch chat users by user ID
+	    // Replace "userRepository" with your actual repository class
+	    // Replace "getChatUsersByUserId" with your actual method name
+	    return chatUserRepository.getChatUsersByUserId(userId);
+	}
+
 //	@Override
 //	public List<ChatUser> findAdminChatsByUserId(Integer userId) {
 //	    // Assuming you have a repository method to retrieve admin chats by user id

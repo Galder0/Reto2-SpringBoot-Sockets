@@ -221,6 +221,11 @@ public class ChatController {
         return chatService.getChatsForAdminUser(userId);
     }
     
+    @GetMapping("/user/{userId}")
+    public List<ChatUser> getChatUsersByUserId(@PathVariable Integer userId) {
+        return chatUserService.findChatUsersFromUserId(userId);
+    }
+    
     
     
 }

@@ -88,7 +88,22 @@ public class ChatServiceImpl implements ChatService{
 
 	    return userList.contains(user);
 	}
-    
+
+	@Override
+	public Chat getChatFromName(String name) {
+	    // Assuming chats are stored in a list or database
+	    List<Chat> chats = (List<Chat>) chatRepository.findAll(); // Replace chatRepository with your actual repository or data access object
+
+	    // Iterate through the list of chats to find the one with the matching name
+	    for (Chat chat : chats) {
+	        if (chat.getName().equals(name)) {
+	            // Return the chat if the name matches
+	            return chat;
+	        }
+	    }
+	    // If no chat with the specified name is found, return null
+	    return null;
+	}
     
     
 }

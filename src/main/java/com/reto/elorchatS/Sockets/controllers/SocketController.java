@@ -108,43 +108,50 @@ public class SocketController {
     }
     
     
-    // deberia ser un POST y con body, pero para probar desde el navegador...
     @GetMapping("/leaveRoom/{room}")
     public String leaveRoom(@PathVariable("room") String room) {
-        // Retrieve the authentication object
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            // Retrieve the authentication object
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Check if the user is authenticated
-        if (authentication != null && authentication.isAuthenticated()) {
-            // Assuming your user details contain the user ID
-            User userDetails = (User) authentication.getPrincipal();
-            Integer idUser = userDetails.getId();
+            // Check if the user is authenticated
+            if (authentication != null && authentication.isAuthenticated()) {
+                // Assuming your user details contain the user ID
+                User userDetails = (User) authentication.getPrincipal();
+                Integer idUser = userDetails.getId();
 
-            // Proceed with leaving the room using the retrieved user ID
-            System.out.println("socket left Get Request 1");
-            SocketIOClient client = findClientByUserId(idUser);
-            if (client != null) {
-            	
-            	Chat chat = chatService.getChatFromName(room);
-            	
-            	chatUserService.leaveChat(chat.getId(), idUser);
-            	
-                client.leaveRoom(room);
+                // Proceed with leaving the room using the retrieved user ID
+                System.out.println("socket left Get Request 1");
+                SocketIOClient client = findClientByUserId(idUser);
+                if (client != null) {
+                    Chat chat = chatService.getChatFromName(room);
+                    if (chat != null) {
+                        // Verify if the user is part of the chat before removing
+                        chatUserService.deleteChatUser(idUser, chat.getId());
+                        client.leaveRoom(room);
 
-                System.out.println("socket left Get Request 2");
-                // Emit a custom event to notify others in the room
-                socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_LEFT_ROOM.value, "User with ID " + idUser + " has left the room " + room);
-                
-                // You can also send a farewell message to the user who left
-                client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, "You left the room " + room);
-                System.out.println("socket left Get Request 3");
+                        System.out.println("socket left Get Request 2");
+                        // Emit a custom event to notify others in the room
+                        socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_LEFT_ROOM.value, "User with ID " + idUser + " has left the room " + room);
+                        
+                        // You can also send a farewell message to the user who left
+                        client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, "You left the room " + room);
+                        System.out.println("socket left Get Request 3");
 
-                return "Usuario se ha ido de la sala";
+                        return "Usuario se ha ido de la sala";
+                    } else {
+                        return "La sala no existe";
+                    }
+                } else {
+                    return "Ese usuario no está conectado";
+                }
             } else {
-                return "Ese usuario no está conectado";
+                return "Usuario no autenticado";
             }
-        } else {
-            return "Usuario no autenticado";
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            return "Error al intentar dejar la sala";
         }
     }
     

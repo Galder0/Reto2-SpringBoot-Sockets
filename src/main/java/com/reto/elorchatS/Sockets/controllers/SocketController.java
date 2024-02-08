@@ -109,25 +109,42 @@ public class SocketController {
     
     
     // deberia ser un POST y con body, pero para probar desde el navegador...
-    @GetMapping("/leaveRoom/{room}/{idUser}")
-    public String leaveRoom(@PathVariable("room") String room, @PathVariable("idUser") Integer idUser) {
-    	
-    	System.out.println("socket left Get Request 1");
-        SocketIOClient client = findClientByUserId(idUser);
-        if (client != null) {
-            client.leaveRoom(room);
+    @GetMapping("/leaveRoom/{room}")
+    public String leaveRoom(@PathVariable("room") String room) {
+        // Retrieve the authentication object
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            System.out.println("socket left Get Request 2");
-            // Emit a custom event to notify others in the room
-            socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_LEFT_ROOM.value, "User with ID " + idUser + " has left the room " + room);
-            
-            // You can also send a welcome message to the user who joined
-            client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, "You left the room " + room);
-            System.out.println("socket left Get Request 3");
+        // Check if the user is authenticated
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Assuming your user details contain the user ID
+            User userDetails = (User) authentication.getPrincipal();
+            Integer idUser = userDetails.getId();
 
-            return "Usuario se ha ido de la sala";
+            // Proceed with leaving the room using the retrieved user ID
+            System.out.println("socket left Get Request 1");
+            SocketIOClient client = findClientByUserId(idUser);
+            if (client != null) {
+            	
+            	Chat chat = chatService.getChatFromName(room);
+            	
+            	chatUserService.leaveChat(chat.getId(), idUser);
+            	
+                client.leaveRoom(room);
+
+                System.out.println("socket left Get Request 2");
+                // Emit a custom event to notify others in the room
+                socketIoServer.getRoomOperations(room).sendEvent(SocketEvents.ON_LEFT_ROOM.value, "User with ID " + idUser + " has left the room " + room);
+                
+                // You can also send a farewell message to the user who left
+                client.sendEvent(SocketEvents.ON_LEFT_ROOM.value, "You left the room " + room);
+                System.out.println("socket left Get Request 3");
+
+                return "Usuario se ha ido de la sala";
+            } else {
+                return "Ese usuario no está conectado";
+            }
         } else {
-            return "Ese usuario no está conectado";
+            return "Usuario no autenticado";
         }
     }
     

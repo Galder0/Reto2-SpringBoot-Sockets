@@ -10,6 +10,8 @@ public interface ChatUserService {
 	void joinChat(Integer chatId, Integer userId);
 
     void leaveChat(Integer chatId, Integer userId);
+    
+    List<ChatUser> findChatUsersFromUserId(Integer UserId);
 
 	List<ChatUser> findAllChatUsers();
 

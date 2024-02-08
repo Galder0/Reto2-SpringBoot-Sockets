@@ -38,4 +38,7 @@ public interface ChatRepository extends CrudRepository<Chat, Integer>{
 	@Query("SELECT c FROM Chat c JOIN ChatUser cu ON c.id = cu.chatId WHERE cu.isAdmin = true AND cu.userId = :userId")
     @Transactional
 	List<Chat> findChatsByAdminAndUserId(@Param("userId") Integer userId);
+	
+	@Query("SELECT c FROM Chat c WHERE c.Private = false")
+	List<Chat> findAllPublicChats();
 }

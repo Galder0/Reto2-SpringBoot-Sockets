@@ -2,8 +2,16 @@ package com.reto.elorchatS.Sockets.socketsIO;
 
 
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +91,10 @@ public class SocketIOConfig {
     	com.corundumstudio.socketio.Configuration config = new com.corundumstudio.socketio.Configuration();
         config.setHostname(host);
         config.setPort(port);
+        
+        config.setMaxFramePayloadLength(2621440);
+        config.setMaxHttpContentLength(2621440);
+
         
         // vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
         config.setAllowHeaders("Authorization");
@@ -282,26 +294,39 @@ public class SocketIOConfig {
             		new Timestamp(System.currentTimeMillis())
             	);
             	
-//            	MessageFromServer message = new MessageFromServer(
-//            		MessageType.CLIENT, 
-//            		data.getRoom(), 
-//            		data.getMessage(), 
-//            		authorName, 
-//            		authorId
-//                );
+            	 String messageContent = message.getMessage();
+            	 System.out.println("messageContent " + messageContent);
+            	 System.out.println("message " + message.toString());
+            	    // Check if the message content length exceeds 2000 characters
+            	    if (messageContent.length() > 2000) {
+            	        // If the message content is greater than 2000 characters, process the image
+            	    	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
+            	    	
+            	        MessageDAO newMessage = testImage(message);
+            	        
+            	        //message.setMessage(newMessage.getMessage());
+            	        
+            	        System.out.println("newMessage " + newMessage.toString());
+            	        
+            	        Message created = messageService.createMessage(message.getMessage(), authorId, chatDB.getId());
+            	        
+            	        System.out.println("Message created on the DB" + created.toString());
+            	        
+            	    } else {
+            	    	
+            	    	Message created = messageService.createMessage(message.getMessage(), authorId, chatDB.getId());
+            	    	
+            	    	System.out.println("Message created on the DB" + created.toString());
+            	    	
+            	    	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
+            	    	
+            	    }
+            	
+  
+            	
+            	
+            	
             
-            	// enviamos a la room correspondiente:
-            	server.getRoomOperations(data.getRoom()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
-            	
-            	
-            	Message created = messageService.createMessage(data.getMessage(), authorId, chatDB.getId());
-            	
-            	System.out.println("Message created on the DB" + created.toString());
-            	
-//            	List<MessageDAO> messages = messageService.getAllMessages();
-//            	
-//            	System.out.println("Prueba Mensajes " + messages.toString());
-            	
             	// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
             	// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
             	
@@ -373,5 +398,48 @@ public class SocketIOConfig {
 	@PreDestroy
 	public void stopSocketIOServer() {
 		this.server.stop();
+	}
+	
+	public MessageDAO testImage (MessageDAO message)  throws IOException{
+		
+		
+		Integer num = 0;
+		
+		String imageString = message.getMessage();
+		
+		String extensionArchivo = detectMimeType(imageString);
+		
+		String fileName = "Image_" + System.currentTimeMillis() + extensionArchivo;
+		
+		String outputFile = "src/main/resources/images/" + fileName;
+		
+		message.setMessage(outputFile);
+		
+		byte[] decodeImg = Base64.getDecoder().decode(imageString.getBytes(StandardCharsets.UTF_8));
+		
+		Path destinationFile = Paths.get(outputFile);
+		
+		Files.write(destinationFile, decodeImg);
+		
+		return message;
+	}
+	
+	private String detectMimeType(String base64Content) {
+		HashMap<String, String> signatures = new HashMap<String, String>();
+		
+		signatures.put("JVBERi0", ".pdf");
+		signatures.put("R0lGODdh", ".gif");
+		signatures.put("R0lGODdh", ".gif");
+		signatures.put("iVBORw0KGgo", ".png");
+		signatures.put("/9j/", ".jpg");
+		String response = "";
+		
+		for(Map.Entry<String, String> entry : signatures.entrySet()) {
+			String key = entry.getKey();
+			if(base64Content.indexOf(key) == 0) {
+				response = entry.getValue();
+			}
+		}
+		return response;
 	}
 }

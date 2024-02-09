@@ -54,8 +54,8 @@ Consulte la documentación de Socket.IO para comprender la implementación y el 
 
 ## Contacto
 Para preguntas o problemas, puede ponerse en contacto con los mantenedores del proyecto:
-- :computer: [Ager](mailto:)
-- :computer: [Galder](mailto:)
+- :computer: [Ager](mailto:ager.algortape@elorrieta-errekamari.com)
+- :computer: [Galder](mailto:galder.gonzalez-balsiz@elorrieta-errekamari.com)
 - :computer: [Ander](mailto:ander.lopezdevallejohi@elorrieta-errekamari.com)
 
 ## Licencia
